@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { OrderFilePreview } from "../components/OrderFilePreview";
 import { SocialLinks } from "../components/SocialLinks";
 import { useI18n } from "../i18n/LanguageContext";
+import { assetUrl } from "../lib/asset";
 import { CONTACT_EMAIL, SITE_URL } from "../lib/socials";
 
 export function OrderPrint() {
@@ -74,7 +75,7 @@ export function OrderPrint() {
         <aside className="panel contact-card">
           <OrderFilePreview file={file} />
           <div className="contact-split">
-            <img className="contact-logo" src="/logo-green.png?v=3" alt="Uncle Loop Design" />
+            <img className="contact-logo" src={assetUrl("logo-green.png?v=3")} alt="Uncle Loop Design" />
             <div className="contact-details">
               <div>
                 <span className="contact-kicker">{t("order.mail")}</span>

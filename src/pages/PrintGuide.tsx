@@ -1,10 +1,11 @@
 import { useI18n } from "../i18n/LanguageContext";
+import { assetUrl } from "../lib/asset";
 
 const STEPS = [
-  { img: "/guide/bambu-open.png", title: "print.slicer.s1.title", body: "print.slicer.s1.body" },
-  { img: "/guide/bambu-place.png", title: "print.slicer.s2.title", body: "print.slicer.s2.body" },
-  { img: "/guide/bambu-colors.svg", title: "print.slicer.s3.title", body: "print.slicer.s3.body" },
-  { img: "/guide/bambu-slice.png", title: "print.slicer.s4.title", body: "print.slicer.s4.body" },
+  { img: assetUrl("guide/bambu-open.png"), title: "print.slicer.s1.title", body: "print.slicer.s1.body" },
+  { img: assetUrl("guide/bambu-place.png"), title: "print.slicer.s2.title", body: "print.slicer.s2.body" },
+  { img: assetUrl("guide/bambu-colors.svg"), title: "print.slicer.s3.title", body: "print.slicer.s3.body" },
+  { img: assetUrl("guide/bambu-slice.png"), title: "print.slicer.s4.title", body: "print.slicer.s4.body" },
 ] as const;
 
 export function PrintGuide() {
@@ -52,17 +53,17 @@ export function PrintGuide() {
         <h2>{t("print.cut.title")}</h2>
         <div className="cut-grid">
           <div className="guide-card brand-card">
-            <img className="brand-logo" src="/guide/cricut.svg" alt="Cricut" />
+            <img className="brand-logo" src={assetUrl("guide/cricut.svg")} alt="Cricut" />
             <h3>Cricut Design Space</h3>
             <p>{t("print.svg.cricut")}</p>
           </div>
           <div className="guide-card brand-card">
-            <img className="brand-logo" src="/guide/silhouette-logo.png?v=3" alt="Silhouette" />
+            <img className="brand-logo" src={assetUrl("guide/silhouette-logo.png?v=3")} alt="Silhouette" />
             <h3>Silhouette Studio / Cameo</h3>
             <p>{t("print.svg.silhouette")}</p>
           </div>
           <div className="guide-card brand-card">
-            <img className="brand-logo" src="/guide/xtool.svg" alt="xTool" />
+            <img className="brand-logo" src={assetUrl("guide/xtool.svg")} alt="xTool" />
             <h3>xTool</h3>
             <p>{t("print.svg.xtool")}</p>
           </div>

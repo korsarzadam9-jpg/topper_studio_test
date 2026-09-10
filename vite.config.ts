@@ -9,6 +9,6 @@ export default defineConfig({
   },
   server: {
     port: 5173,
-    open: true,
+    open: "/topper_studio_test/",
   },
 });

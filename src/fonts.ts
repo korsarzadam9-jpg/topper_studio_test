@@ -1,3 +1,5 @@
+import { assetUrl } from "./lib/asset";
+
 export type FontCategory = "handwriting" | "display" | "serif" | "sans-serif" | "monospace";
 
 export interface FontOption {
@@ -12,34 +14,34 @@ export interface FontOption {
 }
 
 const LOCAL_FILES: Record<string, string> = {
-  brownist: "/fonts/Brownist.otf?v=pl",
-  "better-yesterday": "/fonts/BetterYesterday.otf",
-  "abril-fatface": "/fonts/AbrilFatface-Regular.ttf",
-  "alex-brush": "/fonts/AlexBrush-Regular.ttf",
-  allura: "/fonts/Allura-Regular.ttf",
-  "amatic-sc": "/fonts/AmaticSC-Bold.ttf",
-  caveat: "/fonts/Caveat.ttf",
-  cinzel: "/fonts/Cinzel.ttf",
-  comfortaa: "/fonts/Comfortaa.ttf",
-  cookie: "/fonts/Cookie-Regular.ttf",
-  "cormorant-garamond": "/fonts/CormorantGaramond.ttf",
-  "dancing-script": "/fonts/DancingScript.ttf",
-  "great-vibes": "/fonts/GreatVibes-Regular.ttf",
-  italianno: "/fonts/Italianno-Regular.ttf",
-  "josefin-sans": "/fonts/JosefinSans.ttf",
-  lobster: "/fonts/Lobster-Regular.ttf",
-  lora: "/fonts/Lora.ttf",
-  "marck-script": "/fonts/MarckScript-Regular.ttf",
-  montserrat: "/fonts/Montserrat.ttf",
-  oswald: "/fonts/Oswald.ttf",
-  pacifico: "/fonts/Pacifico-Regular.ttf",
-  parisienne: "/fonts/Parisienne-Regular.ttf",
-  "pinyon-script": "/fonts/PinyonScript-Regular.ttf",
-  "playfair-display": "/fonts/PlayfairDisplay.ttf",
-  quicksand: "/fonts/Quicksand.ttf",
-  sacramento: "/fonts/Sacramento-Regular.ttf",
-  satisfy: "/fonts/Satisfy-Regular.ttf",
-  tangerine: "/fonts/Tangerine-Bold.ttf",
+  brownist: assetUrl("fonts/Brownist.otf?v=pl"),
+  "better-yesterday": assetUrl("fonts/BetterYesterday.otf"),
+  "abril-fatface": assetUrl("fonts/AbrilFatface-Regular.ttf"),
+  "alex-brush": assetUrl("fonts/AlexBrush-Regular.ttf"),
+  allura: assetUrl("fonts/Allura-Regular.ttf"),
+  "amatic-sc": assetUrl("fonts/AmaticSC-Bold.ttf"),
+  caveat: assetUrl("fonts/Caveat.ttf"),
+  cinzel: assetUrl("fonts/Cinzel.ttf"),
+  comfortaa: assetUrl("fonts/Comfortaa.ttf"),
+  cookie: assetUrl("fonts/Cookie-Regular.ttf"),
+  "cormorant-garamond": assetUrl("fonts/CormorantGaramond.ttf"),
+  "dancing-script": assetUrl("fonts/DancingScript.ttf"),
+  "great-vibes": assetUrl("fonts/GreatVibes-Regular.ttf"),
+  italianno: assetUrl("fonts/Italianno-Regular.ttf"),
+  "josefin-sans": assetUrl("fonts/JosefinSans.ttf"),
+  lobster: assetUrl("fonts/Lobster-Regular.ttf"),
+  lora: assetUrl("fonts/Lora.ttf"),
+  "marck-script": assetUrl("fonts/MarckScript-Regular.ttf"),
+  montserrat: assetUrl("fonts/Montserrat.ttf"),
+  oswald: assetUrl("fonts/Oswald.ttf"),
+  pacifico: assetUrl("fonts/Pacifico-Regular.ttf"),
+  parisienne: assetUrl("fonts/Parisienne-Regular.ttf"),
+  "pinyon-script": assetUrl("fonts/PinyonScript-Regular.ttf"),
+  "playfair-display": assetUrl("fonts/PlayfairDisplay.ttf"),
+  quicksand: assetUrl("fonts/Quicksand.ttf"),
+  sacramento: assetUrl("fonts/Sacramento-Regular.ttf"),
+  satisfy: assetUrl("fonts/Satisfy-Regular.ttf"),
+  tangerine: assetUrl("fonts/Tangerine-Bold.ttf"),
 };
 
 export const BRAND_FONTS: FontOption[] = [

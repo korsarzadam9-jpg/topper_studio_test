@@ -1,6 +1,7 @@
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { useAuth } from "../auth/AuthContext";
 import { useI18n } from "../i18n/LanguageContext";
+import { assetUrl } from "../lib/asset";
 import { hrefFor, type Route } from "../lib/route";
 
 export function TopNav({ route, onLogin }: { route: Route; onLogin: () => void }) {
@@ -16,7 +17,7 @@ export function TopNav({ route, onLogin }: { route: Route; onLogin: () => void }
   return (
     <header className="topbar">
       <a className="brand" href={hrefFor("studio")}>
-        <img src="/logo.png?v=3" alt="Uncle Loop Design" />
+        <img src={assetUrl("logo.png?v=3")} alt="Uncle Loop Design" />
         <h1 className="brand-tag">{t("brand.tag")}</h1>
       </a>
       <nav className="topnav" aria-label="Main">
