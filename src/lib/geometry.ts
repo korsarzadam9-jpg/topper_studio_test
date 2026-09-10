@@ -60,6 +60,13 @@ export function scaleContours(contours: Contour[], sx: number, sy: number, ox = 
   );
 }
 
+export function scaleRegions(regions: Region[], sx: number, sy: number, ox = 0, oy = 0): Region[] {
+  return regions.map((region) => ({
+    outer: scaleContours([region.outer], sx, sy, ox, oy)[0],
+    holes: scaleContours(region.holes, sx, sy, ox, oy),
+  }));
+}
+
 export function simplifyContour(contour: Contour, epsilon: number): Contour {
   if (contour.length < 5) return contour;
   const closed =

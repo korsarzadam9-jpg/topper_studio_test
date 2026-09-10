@@ -12,6 +12,7 @@ export type Msg =
   | "row.placeholder"
   | "row.size"
   | "row.add"
+  | "row.color"
   | "align.left"
   | "align.center"
   | "align.right"
@@ -28,13 +29,18 @@ export type Msg =
   | "size.halo"
   | "size.offsetZ"
   | "size.textZ"
+  | "size.letteringHint"
   | "section.sticks"
+  | "sticks.enabled"
   | "sticks.count"
   | "sticks.length"
   | "sticks.width"
   | "sticks.offsetX"
   | "sticks.offsetY"
   | "sticks.spacing"
+  | "sticks.mountNote"
+  | "sticks.mountStl"
+  | "sticks.mount3mf"
   | "section.colors"
   | "color.lettering"
   | "color.offset"
@@ -214,6 +220,7 @@ const en: Record<Msg, string> = {
   "row.placeholder": "Type your text…",
   "row.size": "Line size",
   "row.add": "+ Add line",
+  "row.color": "Line color",
   "align.left": "Left",
   "align.center": "Center",
   "align.right": "Right",
@@ -230,13 +237,18 @@ const en: Record<Msg, string> = {
   "size.halo": "Halo thickness",
   "size.offsetZ": "Offset Z",
   "size.textZ": "Lettering Z",
+  "size.letteringHint": "Width and height apply only to the lettering and halo — the stick is set separately and is not included.",
   "section.sticks": "Sticks",
+  "sticks.enabled": "Printed sticks",
   "sticks.count": "Count",
   "sticks.length": "Length",
   "sticks.width": "Width",
   "sticks.offsetX": "Offset X",
   "sticks.offsetY": "Offset Y",
   "sticks.spacing": "Stick spacing",
+  "sticks.mountNote": "Attach the toothpick-mount file and glue the sockets onto the back of the lettering.",
+  "sticks.mountStl": "Download mounts STL",
+  "sticks.mount3mf": "Download mounts 3MF",
   "section.colors": "Preview colors",
   "color.lettering": "Lettering",
   "color.offset": "Offset",
@@ -418,6 +430,7 @@ const pl: Record<Msg, string> = {
   "row.placeholder": "Wpisz tekst…",
   "row.size": "Wielkość wiersza",
   "row.add": "+ Dodaj wiersz",
+  "row.color": "Kolor wiersza",
   "align.left": "Lewo",
   "align.center": "Środek",
   "align.right": "Prawo",
@@ -434,13 +447,18 @@ const pl: Record<Msg, string> = {
   "size.halo": "Grubość otoczki",
   "size.offsetZ": "Offset Z",
   "size.textZ": "Napis Z",
+  "size.letteringHint": "Wymiary dotyczą wyłącznie napisu i otoczki — patyczek ustawiasz osobno i nie wchodzi w ten rozmiar.",
   "section.sticks": "Patyczki",
+  "sticks.enabled": "Patyczki drukowane",
   "sticks.count": "Ilość",
   "sticks.length": "Długość",
   "sticks.width": "Szerokość",
   "sticks.offsetX": "Odstęp X",
   "sticks.offsetY": "Odstęp Y",
   "sticks.spacing": "Rozstaw patyczków",
+  "sticks.mountNote": "Dołącz plik do przyklejenia mocowania wykałaczek.",
+  "sticks.mountStl": "Pobierz mocowania STL",
+  "sticks.mount3mf": "Pobierz mocowania 3MF",
   "section.colors": "Kolory podglądu",
   "color.lettering": "Napis",
   "color.offset": "Offset",

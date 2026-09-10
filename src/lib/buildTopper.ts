@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import type { Contour, MeshData, Region, TopperModel, TopperSettings } from "../types";
 import { offsetRegions, unionContours, unionRegions, differenceRegions } from "./clipper";
-import { boundsOf, boundsOfRegions, rectangle, scaleContours, simplifyContour, translateContours } from "./geometry";
+import { boundsOf, boundsOfRegions, rectangle, scaleContours, scaleRegions, simplifyContour, translateContours } from "./geometry";
 import { fileToContours } from "./vectorize";
 import { textRowsToContours } from "./text";
 
@@ -93,6 +93,43 @@ function applyFit(contours: Contour[], fit: ReturnType<typeof computeFit>): Cont
   );
 }
 
+function fitLetteringSize(
+  offset: Region[],
+  text: Region[],
+  widthMm: number,
+  heightMm: number,
+) {
+  const box = boundsOfRegions(offset.length ? offset : text);
+  if (box.width < 0.01 || box.height < 0.01) {
+    return { scaleX: 1, scaleY: 1, ox: 0, oy: 0, dx: 0, dy: 0 };
+  }
+  const scaleX = widthMm / box.width;
+  const scaleY = heightMm / box.height;
+  const scaled = scaleRegions(offset.length ? offset : text, scaleX, scaleY, box.minX, box.minY);
+  const after = boundsOfRegions(scaled);
+  return {
+    scaleX,
+    scaleY,
+    ox: box.minX,
+    oy: box.minY,
+    dx: -after.minX - after.width / 2,
+    dy: -after.minY - after.height / 2,
+  };
+}
+
+function applySizeFitContours(contours: Contour[], fit: ReturnType<typeof fitLetteringSize>): Contour[] {
+  return scaleContours(contours, fit.scaleX, fit.scaleY, fit.ox, fit.oy).map((c) =>
+    c.map((p) => ({ x: p.x + fit.dx, y: p.y + fit.dy })),
+  );
+}
+
+function applySizeFitRegions(regions: Region[], fit: ReturnType<typeof fitLetteringSize>): Region[] {
+  return scaleRegions(regions, fit.scaleX, fit.scaleY, fit.ox, fit.oy).map((region) => ({
+    outer: region.outer.map((p) => ({ x: p.x + fit.dx, y: p.y + fit.dy })),
+    holes: region.holes.map((hole) => hole.map((p) => ({ x: p.x + fit.dx, y: p.y + fit.dy }))),
+  }));
+}
+
 function filledGlyphs(glyphs: Contour[][]) {
   return glyphs.filter((g) => g.some((c) => c.length > 2));
 }
@@ -174,6 +211,7 @@ function makeSticks(
   offset: Region[],
   settings: TopperSettings,
 ): Region[] {
+  if (settings.sticksEnabled === false) return [];
   const count = settings.stickCount;
   const lengthMm = settings.stickLengthMm;
   const widthMm = settings.stickWidthMm;
@@ -252,7 +290,7 @@ export async function buildTopper(settings: TopperSettings, file?: File | null):
     fittedGlyphs = fittedGlyphs.map((glyphs) => glyphs.map((g) => translateContours(g, nudgeX, nudgeY)));
   }
 
-  const textRegions = unionContours(fittedContours);
+  let textRegions = unionContours(fittedContours);
   if (!textRegions.length) throw new Error("error.shape");
 
   const haloMm = resolveHaloMm(settings.offsetHaloMm);
@@ -261,7 +299,12 @@ export async function buildTopper(settings: TopperSettings, file?: File | null):
     ...lineBridges(lineContours, haloMm),
   ];
   const offsetSource = bridges.length ? unionContours([...fittedContours, ...bridges]) : textRegions;
-  const offsetOnly = offsetRegions(offsetSource, haloMm);
+  let offsetOnly = offsetRegions(offsetSource, haloMm);
+  const sizeFit = fitLetteringSize(offsetOnly, textRegions, settings.widthMm, settings.heightMm);
+  offsetOnly = applySizeFitRegions(offsetOnly, sizeFit);
+  textRegions = applySizeFitRegions(textRegions, sizeFit);
+  fittedContours = applySizeFitContours(fittedContours, sizeFit);
+  lineContours = lineContours.map((line) => applySizeFitContours(line, sizeFit));
   const sticks = makeSticks(offsetOnly, settings);
   const offsetRegionsAll = sticks.length ? unionRegions(offsetOnly, sticks) : offsetOnly;
 
@@ -274,7 +317,30 @@ export async function buildTopper(settings: TopperSettings, file?: File | null):
   const offsetMesh = rimMesh ? mergeMeshes(floorMesh, rimMesh) : regionsToMesh(offsetRegionsAll, settings.offsetThicknessMm, 0);
   const letterZ0 = rimMesh ? floorMm : settings.offsetThicknessMm;
   const letterDepth = rimMesh ? settings.textThicknessMm + embedMm : settings.textThicknessMm;
-  const textMesh = regionsToMesh(textRegions, letterDepth, letterZ0);
+  const emptyMesh: MeshData = { positions: new Float32Array(), normals: new Float32Array(), indices: new Uint32Array() };
+  const lineParts =
+    settings.mode === "text"
+      ? settings.rows
+          .filter((r) => r.text.trim().length > 0)
+          .map((row, i) => {
+            const regions = unionContours(lineContours[i] ?? []);
+            return {
+              id: row.id,
+              regions,
+              color: row.color || settings.textColor,
+              mesh: regions.length ? regionsToMesh(regions, letterDepth, letterZ0) : emptyMesh,
+            };
+          })
+      : [
+          {
+            id: "artwork",
+            regions: textRegions,
+            color: settings.textColor,
+            mesh: regionsToMesh(textRegions, letterDepth, letterZ0),
+          },
+        ];
+  const mergedLettering = lineParts.reduce((acc, part) => mergeMeshes(acc, part.mesh), emptyMesh);
+  const textMesh = mergedLettering.indices.length ? mergedLettering : regionsToMesh(textRegions, letterDepth, letterZ0);
   const textMeshEmbedded = textMesh;
   const bbox = boundsOfRegions([...offsetRegionsAll, ...textRegions]);
 
@@ -287,12 +353,7 @@ export async function buildTopper(settings: TopperSettings, file?: File | null):
     bodyRegions: offsetOnly,
     stickRegions: sticks,
     pocketRegions: pocket,
-    lineParts:
-      settings.mode === "text"
-        ? settings.rows
-            .filter((r) => r.text.trim().length > 0)
-            .map((row, i) => ({ id: row.id, regions: unionContours(lineContours[i] ?? []) }))
-        : [{ id: "artwork", regions: textRegions }],
+    lineParts,
     bbox: { ...bbox },
     naturalAspect,
     embedMm: rimMesh ? embedMm : 0,

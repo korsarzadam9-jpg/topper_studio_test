@@ -7,6 +7,7 @@ export function createRow(partial: Partial<TextRow> & Pick<TextRow, "text" | "fo
     size: 56,
     offsetX: 0,
     offsetY: 0,
+    color: "#ffffff",
     ...partial,
   };
 }
@@ -18,7 +19,9 @@ export function normalizeSettings(settings: TopperSettings): TopperSettings {
       ...row,
       offsetX: row.offsetX ?? 0,
       offsetY: row.offsetY ?? 0,
+      color: row.color ?? settings.textColor ?? "#ffffff",
     })),
+    sticksEnabled: settings.sticksEnabled ?? true,
     letteringOffsetX: settings.letteringOffsetX ?? 0,
     letteringOffsetY: settings.letteringOffsetY ?? 0,
   };

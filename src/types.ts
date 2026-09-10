@@ -14,6 +14,7 @@ export interface TextRow {
   size: number;
   offsetX: number;
   offsetY: number;
+  color: string;
 }
 
 export interface TopperSettings {
@@ -28,6 +29,7 @@ export interface TopperSettings {
   offsetHaloMm: number;
   offsetThicknessMm: number;
   textThicknessMm: number;
+  sticksEnabled: boolean;
   stickCount: number;
   stickLengthMm: number;
   stickWidthMm: number;
@@ -55,7 +57,7 @@ export interface TopperModel {
   bodyRegions: Region[];
   stickRegions: Region[];
   pocketRegions: Region[];
-  lineParts: { id: string; regions: Region[] }[];
+  lineParts: { id: string; regions: Region[]; color: string; mesh: MeshData }[];
   bbox: { minX: number; minY: number; maxX: number; maxY: number; width: number; height: number };
   naturalAspect: number;
   embedMm: number;

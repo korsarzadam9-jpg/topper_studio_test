@@ -78,8 +78,19 @@ export function exportSvg(model: TopperModel, offsetColor: string, textColor: st
   const oy = pad - box.minY;
   const offsetPath =
     part === "text" ? "" : `<path id="offset" fill="${offsetColor}" d="${regionsToPath(model.offsetRegions, flipY)}"/>`;
+  const letteringLines = model.lineParts.length
+    ? model.lineParts
+    : [{ id: "lettering", regions: model.textRegions, color: textColor }];
   const textPath =
-    part === "offset" ? "" : `<path id="lettering" fill="${textColor}" d="${regionsToPath(model.textRegions, flipY)}"/>`;
+    part === "offset"
+      ? ""
+      : letteringLines
+          .map((line) => {
+            const d = regionsToPath(line.regions, flipY);
+            if (!d) return "";
+            return `<path id="lettering-${line.id}" fill="${line.color || textColor}" d="${d}"/>`;
+          })
+          .join("\n    ");
   const svg = `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="${w.toFixed(2)}mm" height="${h.toFixed(2)}mm" viewBox="0 0 ${w.toFixed(3)} ${h.toFixed(3)}" fill-rule="evenodd">
   <title>Uncle Loop Design Cake Topper</title>

@@ -97,7 +97,9 @@ function Scene3D({
       <directionalLight position={[40, 80, 160]} intensity={1.2} />
       <group>
         <MeshFromData data={model.offsetMesh} color={offsetColor} />
-        <MeshFromData data={model.textMesh} color={textColor} />
+        {model.lineParts.length
+          ? model.lineParts.map((line) => <MeshFromData key={line.id} data={line.mesh} color={line.color || textColor} />)
+          : <MeshFromData data={model.textMesh} color={textColor} />}
       </group>
       <OrbitControls
         ref={controls}
@@ -172,7 +174,7 @@ function SvgStage({
   const pocketD = regionsToPath(model.pocketRegions, flipY);
   const lines = model.lineParts.length
     ? model.lineParts
-    : [{ id: "lettering", regions: model.textRegions }];
+    : [{ id: "lettering", regions: model.textRegions, color: textColor }];
   if (!bodyD && !stickD && !lines.some((line) => line.regions.length)) {
     return <div className="preview-empty">{t("preview.empty")}</div>;
   }
@@ -215,7 +217,7 @@ function SvgStage({
                   data-line={line.id}
                   role="button"
                   aria-label={t("preview.dragHint")}
-                  fill={textColor}
+                  fill={line.color || textColor}
                   fillRule="evenodd"
                   d={d}
                   transform={`translate(${shift.x} ${shift.y})`}
@@ -236,7 +238,9 @@ export function Preview({
   textColor,
   offsetColor,
   busy,
-  dims,
+  widthMm,
+  heightMm,
+  onSizeChange,
   onStickMove,
   onLineMove,
   onSave,
@@ -246,7 +250,9 @@ export function Preview({
   textColor: string;
   offsetColor: string;
   busy: boolean;
-  dims: string;
+  widthMm: number;
+  heightMm: number;
+  onSizeChange?: (next: { widthMm?: number; heightMm?: number }) => void;
   onStickMove?: (dxMm: number, dyMm: number) => void;
   onLineMove?: (id: string, dxMm: number, dyMm: number) => void;
   onSave?: () => void;
@@ -352,7 +358,7 @@ export function Preview({
       ref={wrapRef}
       onPointerDown={(e) => {
         if (mode !== "2d" || e.button !== 0) return;
-        if ((e.target as HTMLElement).closest(".chip-btn, .zoom-dock")) return;
+        if ((e.target as HTMLElement).closest(".chip-btn, .zoom-dock, .dim-chip")) return;
         const hit = (e.target as Element).closest("[data-part]");
         const part = hit?.getAttribute("data-part");
         const lineId = hit?.getAttribute("data-line");
@@ -449,7 +455,36 @@ export function Preview({
         >
           {mode === "2d" ? t("preview.show3d") : t("preview.show2d")}
         </button>
-        <span className="chip">{dims}</span>
+        <label className="chip dim-chip" title={t("size.letteringHint")}>
+          <input
+            type="number"
+            min={40}
+            max={280}
+            step={1}
+            value={Math.round(widthMm)}
+            aria-label={t("size.width")}
+            onChange={(e) => {
+              const n = Number(e.target.value);
+              if (!Number.isFinite(n)) return;
+              onSizeChange?.({ widthMm: Math.min(280, Math.max(40, n)) });
+            }}
+          />
+          <span>×</span>
+          <input
+            type="number"
+            min={20}
+            max={220}
+            step={1}
+            value={Math.round(heightMm)}
+            aria-label={t("size.height")}
+            onChange={(e) => {
+              const n = Number(e.target.value);
+              if (!Number.isFinite(n)) return;
+              onSizeChange?.({ heightMm: Math.min(220, Math.max(20, n)) });
+            }}
+          />
+          <span>mm</span>
+        </label>
         {onSave ? (
           <button type="button" className="chip chip-btn save-chip" onClick={onSave}>
             {saveLabel ?? t("preview.save")}

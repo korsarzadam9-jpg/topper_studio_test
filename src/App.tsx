@@ -15,6 +15,7 @@ import { Pricing } from "./pages/Pricing";
 import { PrintGuide } from "./pages/PrintGuide";
 import { buildTopper, emptyModel } from "./lib/buildTopper";
 import { downloadBlob, export3mf, exportStl, exportSvg, fileSuffix, slugFromSettings } from "./lib/export";
+import { exportToothpickMount3mf, exportToothpickMountStl } from "./lib/toothpickMount";
 import { useRoute } from "./lib/route";
 import { createRow, normalizeSettings } from "./lib/settings";
 import type { EditorMode, ExportFormat, ExportPart, TextRow, TopperModel, TopperSettings } from "./types";
@@ -22,8 +23,8 @@ import type { EditorMode, ExportFormat, ExportPart, TextRow, TopperModel, Topper
 const DEFAULT: TopperSettings = {
   mode: "text",
   rows: [
-    createRow({ text: "Happy Birthday", fontId: "brownist", size: 78 }),
-    createRow({ text: "Sophia", fontId: "better-yesterday", size: 70 }),
+    createRow({ text: "Happy Birthday", fontId: "brownist", size: 78, color: "#ffffff" }),
+    createRow({ text: "Sophia", fontId: "better-yesterday", size: 70, color: "#ffffff" }),
   ],
   align: "center",
   letterSpacing: 0,
@@ -35,6 +36,7 @@ const DEFAULT: TopperSettings = {
   offsetThicknessMm: 3,
   textThicknessMm: 2,
   stickCount: 1,
+  sticksEnabled: true,
   stickLengthMm: 80,
   stickWidthMm: 6,
   stickOffsetX: 0,
@@ -63,7 +65,6 @@ function Studio({
   model,
   busy,
   error,
-  dims,
   canExport,
   slug,
   onStickMove,
@@ -79,7 +80,6 @@ function Studio({
   model: TopperModel;
   busy: boolean;
   error: string | null;
-  dims: string;
   canExport: boolean;
   slug: string;
   onStickMove: (dx: number, dy: number) => void;
@@ -99,7 +99,10 @@ function Studio({
         if (next.widthMm != null && next.heightMm == null) heightMm = next.widthMm / aspect;
         else if (next.heightMm != null && next.widthMm == null) widthMm = next.heightMm * aspect;
       }
-      return { ...prev, ...next, widthMm, heightMm };
+      const sticksEnabled = next.sticksEnabled ?? prev.sticksEnabled;
+      const stickCount =
+        sticksEnabled && (next.stickCount ?? prev.stickCount) < 1 ? 1 : (next.stickCount ?? prev.stickCount);
+      return { ...prev, ...next, widthMm, heightMm, sticksEnabled, stickCount };
     });
   };
 
@@ -141,12 +144,16 @@ function Studio({
         onAddRow={() =>
           setSettings((prev) => ({
             ...prev,
-            rows: [...prev.rows, createRow({ text: "", fontId: prev.rows.at(-1)?.fontId ?? "brownist", size: 56 })],
+            rows: [...prev.rows, createRow({ text: "", fontId: prev.rows.at(-1)?.fontId ?? "brownist", size: 56, color: prev.rows.at(-1)?.color ?? prev.textColor })],
           }))
         }
         onRemoveRow={(id) => setSettings((prev) => ({ ...prev, rows: prev.rows.filter((row) => row.id !== id) }))}
         onFile={setFile}
         onExport={exportKind}
+        onDownloadMounts={async (kind) => {
+          const blob = kind === "3mf" ? await exportToothpickMount3mf() : exportToothpickMountStl();
+          downloadBlob(blob, kind === "3mf" ? "mocowanie-wykalaczek.3mf" : "mocowanie-wykalaczek.stl");
+        }}
         canExport={canExport}
       />
       <div className="preview-col">
@@ -155,7 +162,9 @@ function Studio({
           textColor={settings.textColor}
           offsetColor={settings.offsetColor}
           busy={busy}
-          dims={dims}
+          widthMm={settings.widthMm}
+          heightMm={settings.heightMm}
+          onSizeChange={patch}
           onStickMove={onStickMove}
           onLineMove={onLineMove}
           onSave={onSave}
@@ -269,7 +278,6 @@ export default function App() {
     () => slugFromSettings(settings.rows.map((r) => r.text).join(" ") || file?.name || "cake-topper"),
     [file?.name, settings.rows],
   );
-  const dims = `${Math.round(model.bbox.width)} × ${Math.round(model.bbox.height)} mm`;
 
   return (
     <div className="app" key={locale}>
@@ -283,7 +291,6 @@ export default function App() {
           model={model}
           busy={busy}
           error={error}
-          dims={dims}
           canExport={canExport}
           slug={slug}
           onStickMove={moveStick}

@@ -23,6 +23,7 @@ export function Sidebar({
   onRemoveRow,
   onFile,
   onExport,
+  onDownloadMounts,
   canExport,
 }: {
   settings: TopperSettings;
@@ -34,6 +35,7 @@ export function Sidebar({
   onRemoveRow: (id: string) => void;
   onFile: (file: File | null) => void;
   onExport: (kind: ExportFormat, part: ExportPart) => void;
+  onDownloadMounts: (kind: "stl" | "3mf") => void;
   canExport: boolean;
 }) {
   const { t, locale } = useI18n();
@@ -76,13 +78,23 @@ export function Sidebar({
                     </button>
                   ) : null}
                 </div>
-                <input
-                  type="text"
-                  value={row.text}
-                  placeholder={t("row.placeholder")}
-                  onChange={(e) => onRow(row.id, { text: e.target.value })}
-                  style={{ fontFamily: `"${findFont(row.fontId)?.cssFamily ?? "Montserrat"}"`, fontSize: "1.25rem" }}
-                />
+                <div className="row-text">
+                  <input
+                    type="text"
+                    value={row.text}
+                    placeholder={t("row.placeholder")}
+                    onChange={(e) => onRow(row.id, { text: e.target.value })}
+                    style={{ fontFamily: `"${findFont(row.fontId)?.cssFamily ?? "Montserrat"}"`, fontSize: "1.25rem" }}
+                  />
+                  <label className="row-color" title={t("row.color")}>
+                    <span className="sr-only">{t("row.color")}</span>
+                    <input
+                      type="color"
+                      value={row.color || settings.textColor}
+                      onChange={(e) => onRow(row.id, { color: e.target.value })}
+                    />
+                  </label>
+                </div>
                 <FontPicker value={row.fontId} onChange={(fontId) => onRow(row.id, { fontId })} />
                 <label className="field">
                   <span>
@@ -155,6 +167,7 @@ export function Sidebar({
 
         <section className="section">
           <h2>{t("section.size")}</h2>
+          <p className="field-note">{t("size.letteringHint")}</p>
           <div className="inline">
             <label className="field">
               <span>
@@ -229,15 +242,25 @@ export function Sidebar({
 
         <section className="section">
           <h2>{t("section.sticks")}</h2>
+          <label className="toggle-row">
+            <input
+              type="checkbox"
+              checked={settings.sticksEnabled}
+              onChange={(e) => onChange({ sticksEnabled: e.target.checked })}
+            />
+            <span>{t("sticks.enabled")}</span>
+          </label>
+          {settings.sticksEnabled ? (
+            <>
           <label className="field">
             <span>
               {t("sticks.count")} <span className="val">{settings.stickCount}</span>
             </span>
             <input
               type="range"
-              min={0}
+              min={1}
               max={5}
-              value={settings.stickCount}
+              value={Math.max(1, settings.stickCount)}
               onChange={(e) => onChange({ stickCount: Number(e.target.value) })}
             />
           </label>
@@ -309,15 +332,31 @@ export function Sidebar({
               />
             </label>
           ) : null}
+            </>
+          ) : (
+            <div className="mount-note">
+              <p>{t("sticks.mountNote")}</p>
+              <div className="export-row">
+                <button type="button" className="btn ghost" onClick={() => onDownloadMounts("stl")}>
+                  {t("sticks.mountStl")}
+                </button>
+                <button type="button" className="btn ghost" onClick={() => onDownloadMounts("3mf")}>
+                  {t("sticks.mount3mf")}
+                </button>
+              </div>
+            </div>
+          )}
         </section>
 
         <section className="section">
           <h2>{t("section.colors")}</h2>
-          <div className="colors">
-            <label className="color-field">
-              {t("color.lettering")}
-              <input type="color" value={settings.textColor} onChange={(e) => onChange({ textColor: e.target.value })} />
-            </label>
+          <div className={`colors${settings.mode === "text" ? " colors-offset-only" : ""}`}>
+            {settings.mode === "file" ? (
+              <label className="color-field">
+                {t("color.lettering")}
+                <input type="color" value={settings.textColor} onChange={(e) => onChange({ textColor: e.target.value })} />
+              </label>
+            ) : null}
             <label className="color-field">
               {t("color.offset")}
               <input type="color" value={settings.offsetColor} onChange={(e) => onChange({ offsetColor: e.target.value })} />
@@ -329,7 +368,13 @@ export function Sidebar({
                 key={preset.offset}
                 className="preset"
                 style={{ ["--a" as string]: preset.text, ["--b" as string]: preset.offset }}
-                onClick={() => onChange({ textColor: preset.text, offsetColor: preset.offset })}
+                onClick={() =>
+                  onChange({
+                    textColor: preset.text,
+                    offsetColor: preset.offset,
+                    rows: settings.rows.map((row) => ({ ...row, color: preset.text })),
+                  })
+                }
                 aria-label={t("color.preset")}
               />
             ))}
