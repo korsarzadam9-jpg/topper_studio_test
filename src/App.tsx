@@ -18,6 +18,7 @@ import { downloadBlob, export3mf, exportStl, exportSvg, fileSuffix, slugFromSett
 import { exportToothpickMount3mf, exportToothpickMountStl } from "./lib/toothpickMount";
 import { useRoute } from "./lib/route";
 import { createRow, normalizeSettings } from "./lib/settings";
+import { clampMm, SIZE_HEIGHT, SIZE_WIDTH } from "./components/MmInput";
 import type { EditorMode, ExportFormat, ExportPart, TextRow, TopperModel, TopperSettings } from "./types";
 
 const DEFAULT: TopperSettings = {
@@ -99,6 +100,8 @@ function Studio({
         if (next.widthMm != null && next.heightMm == null) heightMm = next.widthMm / aspect;
         else if (next.heightMm != null && next.widthMm == null) widthMm = next.heightMm * aspect;
       }
+      widthMm = clampMm(widthMm, SIZE_WIDTH.min, SIZE_WIDTH.max);
+      heightMm = clampMm(heightMm, SIZE_HEIGHT.min, SIZE_HEIGHT.max);
       const sticksEnabled = next.sticksEnabled ?? prev.sticksEnabled;
       const stickCount =
         sticksEnabled && (next.stickCount ?? prev.stickCount) < 1 ? 1 : (next.stickCount ?? prev.stickCount);

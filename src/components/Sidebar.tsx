@@ -2,6 +2,7 @@ import { findFont } from "../fonts";
 import { useAuth } from "../auth/AuthContext";
 import { useI18n } from "../i18n/LanguageContext";
 import { FontPicker } from "./FontPicker";
+import { MmInput, SIZE_HEIGHT, SIZE_WIDTH } from "./MmInput";
 import type { Align, EditorMode, ExportFormat, ExportPart, TextRow, TopperSettings } from "../types";
 
 const COLOR_PRESETS = [
@@ -169,30 +170,52 @@ export function Sidebar({
           <h2>{t("section.size")}</h2>
           <p className="field-note">{t("size.letteringHint")}</p>
           <div className="inline">
-            <label className="field">
+            <div className="field">
               <span>
-                {t("size.width")} <span className="val">{settings.widthMm} mm</span>
+                {t("size.width")}
+                <span className="val-edit">
+                  <MmInput
+                    className="val-input"
+                    value={settings.widthMm}
+                    min={SIZE_WIDTH.min}
+                    max={SIZE_WIDTH.max}
+                    ariaLabel={t("size.width")}
+                    onCommit={(n) => onChange({ widthMm: n })}
+                  />
+                  mm
+                </span>
               </span>
               <input
                 type="range"
-                min={40}
-                max={280}
-                value={settings.widthMm}
+                min={SIZE_WIDTH.min}
+                max={SIZE_WIDTH.max}
+                value={Math.round(settings.widthMm)}
                 onChange={(e) => onChange({ widthMm: Number(e.target.value) })}
               />
-            </label>
-            <label className="field">
+            </div>
+            <div className="field">
               <span>
-                {t("size.height")} <span className="val">{Math.round(settings.heightMm)} mm</span>
+                {t("size.height")}
+                <span className="val-edit">
+                  <MmInput
+                    className="val-input"
+                    value={settings.heightMm}
+                    min={SIZE_HEIGHT.min}
+                    max={SIZE_HEIGHT.max}
+                    ariaLabel={t("size.height")}
+                    onCommit={(n) => onChange({ heightMm: n })}
+                  />
+                  mm
+                </span>
               </span>
               <input
                 type="range"
-                min={20}
-                max={220}
-                value={settings.heightMm}
+                min={SIZE_HEIGHT.min}
+                max={SIZE_HEIGHT.max}
+                value={Math.round(settings.heightMm)}
                 onChange={(e) => onChange({ heightMm: Number(e.target.value) })}
               />
-            </label>
+            </div>
           </div>
           <button className={`lock ${settings.lockAspect ? "active" : ""}`} onClick={() => onChange({ lockAspect: !settings.lockAspect })}>
             {settings.lockAspect ? t("size.locked") : t("size.unlocked")}

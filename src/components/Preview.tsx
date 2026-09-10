@@ -6,6 +6,7 @@ import * as THREE from "three";
 import type { MeshData, TopperModel } from "../types";
 import { useI18n } from "../i18n/LanguageContext";
 import { regionsToPath } from "../lib/export";
+import { MmInput, SIZE_HEIGHT, SIZE_WIDTH } from "./MmInput";
 
 function MeshFromData({ data, color }: { data: MeshData; color: string }) {
   const geometry = useMemo(() => {
@@ -455,36 +456,26 @@ export function Preview({
         >
           {mode === "2d" ? t("preview.show3d") : t("preview.show2d")}
         </button>
-        <label className="chip dim-chip" title={t("size.letteringHint")}>
-          <input
-            type="number"
-            min={40}
-            max={280}
-            step={1}
-            value={Math.round(widthMm)}
-            aria-label={t("size.width")}
-            onChange={(e) => {
-              const n = Number(e.target.value);
-              if (!Number.isFinite(n)) return;
-              onSizeChange?.({ widthMm: Math.min(280, Math.max(40, n)) });
-            }}
+        <div className="chip dim-chip" title={t("size.letteringHint")}>
+          <MmInput
+            className="dim-chip-input"
+            value={widthMm}
+            min={SIZE_WIDTH.min}
+            max={SIZE_WIDTH.max}
+            ariaLabel={t("size.width")}
+            onCommit={(n) => onSizeChange?.({ widthMm: n })}
           />
           <span>×</span>
-          <input
-            type="number"
-            min={20}
-            max={220}
-            step={1}
-            value={Math.round(heightMm)}
-            aria-label={t("size.height")}
-            onChange={(e) => {
-              const n = Number(e.target.value);
-              if (!Number.isFinite(n)) return;
-              onSizeChange?.({ heightMm: Math.min(220, Math.max(20, n)) });
-            }}
+          <MmInput
+            className="dim-chip-input"
+            value={heightMm}
+            min={SIZE_HEIGHT.min}
+            max={SIZE_HEIGHT.max}
+            ariaLabel={t("size.height")}
+            onCommit={(n) => onSizeChange?.({ heightMm: n })}
           />
           <span>mm</span>
-        </label>
+        </div>
         {onSave ? (
           <button type="button" className="chip chip-btn save-chip" onClick={onSave}>
             {saveLabel ?? t("preview.save")}

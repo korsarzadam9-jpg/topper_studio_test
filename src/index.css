@@ -462,7 +462,8 @@ img { max-width: 100%; display: block; }
   padding: 4px 8px;
 }
 
-.dim-chip input[type="number"] {
+.dim-chip input,
+.dim-chip-input {
   width: 3.4rem;
   border: 0;
   background: transparent;
@@ -473,10 +474,24 @@ img { max-width: 100%; display: block; }
   -moz-appearance: textfield;
 }
 
-.dim-chip input[type="number"]::-webkit-outer-spin-button,
-.dim-chip input[type="number"]::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+.val-edit {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 6px;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.val-input {
+  width: 3.2rem;
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 8px;
+  padding: 2px 6px;
+  font: inherit;
+  font-weight: 700;
+  text-align: center;
 }
 
 .field-note,
@@ -627,12 +642,21 @@ img { max-width: 100%; display: block; }
   gap: 14px;
 }
 
-label.field {
+label.field,
+.field {
   display: grid;
   gap: 8px;
   font-size: 0.94rem;
   color: var(--muted);
   line-height: 1.4;
+}
+
+label.field > span,
+.field > span {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
 }
 
 label.field span.val {
